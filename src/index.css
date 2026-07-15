@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 40% 99%;
+    --foreground: 203 32% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 203 32% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 203 32% 14%;
+
+    /* Ocean Teal - Primary */
+    --primary: 186 84% 26%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Warm sand / light */
+    --secondary: 38 62% 96%;
+    --secondary-foreground: 203 32% 18%;
+
+    --muted: 195 22% 95%;
+    --muted-foreground: 200 14% 46%;
+
+    /* Sunset Gold / Orange */
+    --accent: 33 96% 54%;
+    --accent-foreground: 24 60% 12%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 195 20% 88%;
+    --input: 195 20% 88%;
+    --ring: 186 84% 26%;
+
+    --radius: 0.9rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  h1, h2, h3, .display {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .container-narrow {
+    @apply max-w-6xl mx-auto px-5 md:px-8;
+  }
+  .section-pad {
+    @apply py-20 md:py-28;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+::selection {
+  background: hsl(var(--primary) / 0.18);
+  color: hsl(var(--foreground));
+}
+
+/* Sleek scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.35) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+  background-clip: content-box;
+}
