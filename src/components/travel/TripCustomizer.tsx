@@ -7,6 +7,8 @@ import { Label } from '../ui/label'
 import { packages, company } from '../../data/packages'
 import { saveLead } from '../../lib/leads'
 import { toast } from 'sonner'
+import { useEffect } from 'react'
+import { lockScroll, unlockScroll } from '../../lib/scroll-lock'
 
 const allDestinations = Object.values(packages).flat().map(p => ({ id: p.id, label: `${p.route} • ${p.duration}`, base: parseInt((p.priceFrom||'').replace(/[^\d]/g,'')) || 28000 }))
 
@@ -25,6 +27,14 @@ export default function TripCustomizer({ open, onClose }: { open: boolean, onClo
   const [notes, setNotes] = useState('')
 
   const dest = useMemo(() => allDestinations.find(d => d.id === destinationId) || allDestinations[0], [destinationId])
+
+  useEffect(() => {
+    if (open) {
+      lockScroll()
+      return () => unlockScroll()
+    }
+  }, [open])
+
   const travelers = adults + Math.round(children * 0.6)
   const hotelMult = hotel === '3' ? 1 : hotel === '4' ? 1.38 : 1.95
   const mealMult = meals === 'CP' ? 1 : meals === 'MAP' ? 1.18 : 1.32
@@ -62,7 +72,7 @@ export default function TripCustomizer({ open, onClose }: { open: boolean, onClo
               <div className="flex items-center gap-2 font-display text-[18px] md:text-[20px] text-[#14323c]"><Sparkles className="w-4 h-4 text-amber-500" /> Build Your Trip – Free Custom Quote</div>
               <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100"><X className="w-4 h-4" /></button>
             </div>
-            <div className="overflow-y-auto grid lg:grid-cols-[1.35fr_.85fr] gap-6 p-5 md:p-7">
+            <div className="scroll-native overflow-y-auto grid lg:grid-cols-[1.35fr_.85fr] gap-6 p-5 md:p-7">
               {/* left – builder */}
               <div className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-3">

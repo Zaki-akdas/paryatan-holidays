@@ -64,6 +64,21 @@
   .text-balance {
     text-wrap: balance;
   }
+  .scroll-native {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .scroll-native::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
+}
+
+html.lenis-stopped,
+html.lenis-stopped body {
+  overflow: hidden !important;
+  height: 100%;
 }
 
 ::selection {

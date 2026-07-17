@@ -10,7 +10,7 @@ export type Lead = {
   startDate?: string
   hotelTier?: string
   date: string // ISO
-  source: 'Contact Form' | 'Package Modal' | 'Trip Customizer' | 'AI Chat' | 'Demo'
+  source: 'Contact Form' | 'Package Modal' | 'Itinerary Page' | 'Trip Customizer' | 'AI Chat' | 'Demo'
   status: 'new' | 'contacted' | 'quoted' | 'booked' | 'closed'
 }
 

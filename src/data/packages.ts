@@ -127,6 +127,15 @@ export const packageTabs = [
   { id: "international", label: "International" },
 ]
 
+export function getPackageById(id: string | undefined): PackageItem | null {
+  if (!id) return null
+  for (const list of Object.values(packages)) {
+    const found = list.find((p) => p.id === id)
+    if (found) return found
+  }
+  return null
+}
+
 export const specializations = [
   "Honeymoon & Romantic Getaways",
   "Pilgrimage & Char Dham Yatra",

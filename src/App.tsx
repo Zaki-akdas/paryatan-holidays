@@ -5,6 +5,7 @@ import Hero from './components/travel/Hero'
 import About from './components/travel/About'
 import Services from './components/travel/Services'
 import Packages from './components/travel/Packages'
+import ItineraryPage from './pages/ItineraryPage'
 import Specializations from './components/travel/Specializations'
 import Gallery from './components/travel/Gallery'
 import WhyUs from './components/travel/WhyUs'
@@ -91,6 +92,7 @@ function App() {
         />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/itinerary/:id" element={<ItineraryPage />} />
         <Route path="/admin" element={<AdminGate />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />

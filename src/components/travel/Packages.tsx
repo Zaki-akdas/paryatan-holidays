@@ -1,12 +1,10 @@
-import { packages, packageTabs, type PackageItem, buildItinerary, company } from '../../data/packages'
+import { packages, packageTabs, type PackageItem } from '../../data/packages'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
-import { motion } from 'framer-motion'
-import { X, Utensils, Bus, Camera, CheckCircle2, Star } from 'lucide-react'
+import { Utensils, Bus, Star } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '../ui/button'
-import { saveLead } from '../../lib/leads'
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
-// images
 import tajImg from '../../assets/gallery-taj.jpg'
 import kashmirImg from '../../assets/gallery-kashmir.jpg'
 import keralaImg from '../../assets/gallery-kerala.jpg'
@@ -24,74 +22,6 @@ const imgMap: Record<PackageItem['image'], string> = {
   taj: tajImg, kashmir: kashmirImg, kerala: keralaImg, goa: goaImg,
   rajasthan: rajasthanImg, northeast: northeastImg, shimla: shimlaImg,
   ladakh: ladakhImg, andaman: andamanImg, dubai: dubaiImg, bali: baliImg, europe: europeImg,
-}
-
-function PackageModal({ pkg, onClose }: { pkg: PackageItem | null, onClose: () => void }) {
-  if (!pkg) return null
-  const itinerary = buildItinerary(pkg)
-  const img = imgMap[pkg.image]
-  const whatsapp = () => {
-    const text = `Hi Paryatan Holidays, I'm interested in: ${pkg.route} (${pkg.duration}). Please share detailed itinerary & best price.`
-    saveLead({
-      name: 'Package Enquiry',
-      email: '',
-      phone: '',
-      destination: pkg.route,
-      message: `Package enquiry: ${pkg.route} – ${pkg.duration}`,
-      source: 'Package Modal',
-    })
-    window.open(`https://wa.me/${company.phoneRaw}?text=${encodeURIComponent(text)}`, '_blank')
-  }
-  return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={onClose} />
-      <motion.div initial={{ opacity: 0, y: 18, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="relative bg-white w-full max-w-4xl rounded-[24px] shadow-elevated overflow-hidden max-h-[90vh] flex flex-col">
-        <div className="relative h-56 md:h-64">
-          <img src={img} alt={pkg.route} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-          <button onClick={onClose} className="absolute top-3 right-3 bg-white/90 rounded-full p-2 hover:bg-white"><X className="w-4 h-4" /></button>
-          <div className="absolute bottom-4 left-5 right-5 text-white">
-            <div className="text-[12px] opacity-90">{pkg.duration} • {pkg.priceFrom || 'Custom pricing'}</div>
-            <h3 className="font-display text-[26px] md:text-[30px] leading-tight">{pkg.route}</h3>
-          </div>
-        </div>
-        <div className="overflow-y-auto px-5 md:px-7 py-5 space-y-6 text-[14.5px]">
-          <div className="grid sm:grid-cols-3 gap-3 text-sm">
-            <div className="rounded-2xl bg-[#f6fbfc] border border-cyan-100 px-4 py-3"><div className="flex items-center gap-2 font-semibold text-[#1a3440]"><Bus className="w-4 h-4 text-primary"/> Transport</div><div className="text-slate-700 mt-1">{pkg.transport}</div></div>
-            <div className="rounded-2xl bg-[#f6fbfc] border border-cyan-100 px-4 py-3"><div className="flex items-center gap-2 font-semibold text-[#1a3440]"><Utensils className="w-4 h-4 text-primary"/> Meals</div><div className="text-slate-700 mt-1">{pkg.meals}</div></div>
-            <div className="rounded-2xl bg-[#f6fbfc] border border-cyan-100 px-4 py-3"><div className="flex items-center gap-2 font-semibold text-[#1a3440]"><Camera className="w-4 h-4 text-primary"/> Sightseeing</div><div className="text-slate-700 mt-1">{pkg.sightseeing.length} key spots</div></div>
-          </div>
-          <div><h4 className="font-display text-xl text-[#14323c]">Sightseeing Highlights</h4>
-            <ul className="mt-2 grid sm:grid-cols-2 gap-2 text-slate-700">{pkg.sightseeing.map(s => <li key={s} className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"/>{s}</li>)}</ul>
-          </div>
-          <div><h4 className="font-display text-xl text-[#14323c]">Day-wise Itinerary</h4>
-            <div className="mt-3 space-y-3">{itinerary.map(d => (
-              <div key={d.day} className="flex gap-4">
-                <div className="w-14 shrink-0 text-[12px] font-semibold text-primary pt-0.5">Day {d.day}</div>
-                <div><div className="font-semibold text-[#1c3540]">{d.title}</div><div className="text-sm text-slate-600">{d.detail}</div></div>
-              </div>
-            ))}</div>
-          </div>
-          <div className="grid md:grid-cols-2 gap-5 text-sm bg-[#fafefe] border border-cyan-100 rounded-2xl p-4">
-            <div><div className="font-semibold text-[#1c3540] mb-1.5">Package Includes</div>
-              <ul className="space-y-1 text-slate-700 list-disc pl-4">
-                <li>{pkg.meals}</li><li>{pkg.transport}</li><li>Hotel stay – 3★ / 4★ options</li><li>All sightseeing as listed</li><li>Toll / parking / driver allowance</li><li>24×7 Paryatan on-trip support</li>
-              </ul>
-            </div>
-            <div><div className="font-semibold text-[#1c3540] mb-1.5">Exclusions</div>
-              <ul className="space-y-1 text-slate-600 list-disc pl-4">
-                <li>Flights / Trains unless mentioned</li><li>Entry tickets / guide charges</li><li>Personal expenses</li><li>Travel insurance (add-on)</li><li>Anything not in 'Includes'</li>
-              </ul>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-3 items-center pt-1 pb-2">
-            <Button variant="sunset" onClick={whatsapp}>Book on WhatsApp</Button>
-            <div className="text-sm text-slate-600">Price from <b className="text-[#14323c]">{pkg.priceFrom || 'on request'}</b> • Fully customizable</div>
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  )
 }
 
 const styleFilters = [
@@ -121,8 +51,8 @@ function matchStyle(pkg: PackageItem, catId: string, style: string) {
 }
 
 export default function Packages() {
-  const [active, setActive] = useState<PackageItem | null>(null)
   const [styleFilter, setStyleFilter] = useState<string>('all')
+  const navigate = useNavigate()
 
   return (
     <section id="packages" className="section-pad bg-white/92 backdrop-blur-[1.5px] overflow-hidden">
@@ -169,7 +99,7 @@ export default function Packages() {
                   {list.map((p, i) => (
                     <motion.button
                       key={p.id}
-                      onClick={()=>setActive(p)}
+                      onClick={()=>navigate(`/itinerary/${p.id}`)}
                       initial={{ opacity: 0, y: 16 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, amount: 0.25 }}
@@ -202,7 +132,6 @@ export default function Packages() {
         </Tabs>
         <p className="text-center text-sm text-slate-500 mt-8">Don’t see your route? Use the Trip Customizer – we build custom trips in 2 hours.</p>
       </div>
-      <PackageModal pkg={active} onClose={()=>setActive(null)} />
     </section>
   )
 }
