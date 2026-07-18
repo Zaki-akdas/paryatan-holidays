@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import Lenis from 'lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { registerLenis } from '../../lib/scroll-lock'
+import { registerLenis, restoreHomeScroll } from '../../lib/scroll-lock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -17,6 +17,10 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     })
 
     registerLenis(lenis)
+
+    // Restore the user's prior scroll position on the home page (e.g. after
+    // closing an itinerary). Defer a frame so layout/images settle first.
+    requestAnimationFrame(() => requestAnimationFrame(restoreHomeScroll))
 
     lenis.on('scroll', ScrollTrigger.update)
 

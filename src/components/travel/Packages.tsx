@@ -4,6 +4,7 @@ import { Utensils, Bus, Star } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { saveHomeScroll } from '../../lib/scroll-lock'
 
 import tajImg from '../../assets/gallery-taj.jpg'
 import kashmirImg from '../../assets/gallery-kashmir.jpg'
@@ -99,7 +100,7 @@ export default function Packages() {
                   {list.map((p, i) => (
                     <motion.button
                       key={p.id}
-                      onClick={()=>navigate(`/itinerary/${p.id}`)}
+                      onClick={() => { saveHomeScroll(); navigate(`/itinerary/${p.id}`) }}
                       initial={{ opacity: 0, y: 16 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, amount: 0.25 }}

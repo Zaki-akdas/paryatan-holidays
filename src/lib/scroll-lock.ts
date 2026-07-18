@@ -3,11 +3,44 @@
 // page's smooth scrolling (and lock native body scroll) while open, keeping
 // the modal's own details container the only thing that scrolls.
 
-let lenisInstance: { stop: () => void; start: () => void } | null = null
+type LenisLike = {
+  stop: () => void
+  start: () => void
+  scrollTo: (target: number, opts?: { immediate?: boolean; force?: boolean }) => void
+  scroll: number
+}
+
+let lenisInstance: LenisLike | null = null
 let lockCount = 0
 
-export function registerLenis(instance: { stop: () => void; start: () => void } | null) {
+const HOME_SCROLL_KEY = 'paryatan_home_scroll'
+
+export function registerLenis(instance: LenisLike | null) {
   lenisInstance = instance
+}
+
+// Remember where the user was on the home page before opening an itinerary.
+export function saveHomeScroll(y?: number) {
+  const pos = typeof y === 'number' ? y : (lenisInstance?.scroll ?? window.scrollY)
+  try { sessionStorage.setItem(HOME_SCROLL_KEY, String(Math.round(pos))) } catch {}
+}
+
+export function takeHomeScroll(): number | null {
+  try {
+    const raw = sessionStorage.getItem(HOME_SCROLL_KEY)
+    if (raw == null) return null
+    sessionStorage.removeItem(HOME_SCROLL_KEY)
+    const n = Number(raw)
+    return Number.isFinite(n) ? n : null
+  } catch { return null }
+}
+
+// Restore the saved home scroll position once Lenis is ready.
+export function restoreHomeScroll() {
+  const y = takeHomeScroll()
+  if (y == null) return
+  if (lenisInstance) lenisInstance.scrollTo(y, { immediate: true, force: true })
+  else window.scrollTo(0, y)
 }
 
 export function lockScroll() {
