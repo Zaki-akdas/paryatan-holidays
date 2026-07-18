@@ -1,6 +1,7 @@
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
+import { useIsMobile, prefersReducedMotion } from '../../lib/useIsMobile'
 
 function Floater({ pos, speed, scale, color, kind = 'plane' }:{pos:[number,number,number], speed:number, scale:number, color:string, kind?: 'plane'|'suitcase'|'camera'|'balloon'|'pin'}) {
   const ref = useRef<THREE.Group>(null)
@@ -103,15 +104,23 @@ function Rig({ scroll }: { scroll: number }) {
 
 export default function ScrollScene() {
   const scrollRef = useRef(0)
+  const isMobile = useIsMobile()
+  const reduced = prefersReducedMotion()
+  const enabled = !isMobile && !reduced
 
   useEffect(() => {
+    if (!enabled) return
     const onScroll = () => {
       scrollRef.current = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight)
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [enabled])
+
+  // The floating 3D props are decorative. Skip the WebGL canvas on mobile
+  // and for reduced-motion users so mobile load/scroll stays smooth.
+  if (!enabled) return null
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[2] opacity-[0.98]">

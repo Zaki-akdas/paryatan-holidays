@@ -2,6 +2,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Stars, useTexture } from '@react-three/drei'
 import { useRef, useMemo } from 'react'
 import * as THREE from 'three'
+import { useIsMobile, prefersReducedMotion } from '../../lib/useIsMobile'
 
 // Convert lat/lon to 3D position
 const latLonToVec = (lat: number, lon: number, r: number) => {
@@ -87,7 +88,7 @@ const DESTINATIONS = [
   { name: 'Istanbul', lat: 41.00, lon: 28.97, pkg: 'Turkey' },
 ]
 
-function Earth({ scrollY = 0, scale = 1.75 }: { scrollY?: number, scale?: number }) {
+function Earth({ scrollY = 0, scale = 1.75, mobile = false }: { scrollY?: number, scale?: number, mobile?: boolean }) {
   const globeRef = useRef<THREE.Mesh>(null)
   const cloudsRef = useRef<THREE.Mesh>(null)
   const markersRef = useRef<THREE.Group>(null)
@@ -99,12 +100,14 @@ function Earth({ scrollY = 0, scale = 1.75 }: { scrollY?: number, scale?: number
 
   if (earthMap) {
     earthMap.colorSpace = THREE.SRGBColorSpace
-    earthMap.anisotropy = 4
+    earthMap.anisotropy = mobile ? 2 : 4
   }
 
   useFrame((state) => {
     const t = state.clock.elapsedTime
-    const baseRotate = t * 0.12 + scrollY * 0.8
+    // Freeze continuous spin on mobile/reduced to save battery; still react to scroll.
+    const spin = mobile ? 0 : t * 0.12
+    const baseRotate = spin + scrollY * 0.8
     if (globeRef.current) globeRef.current.rotation.y = baseRotate
     if (cloudsRef.current) cloudsRef.current.rotation.y = baseRotate * 1.08
     if (markersRef.current) markersRef.current.rotation.y = baseRotate
@@ -116,11 +119,13 @@ function Earth({ scrollY = 0, scale = 1.75 }: { scrollY?: number, scale?: number
     pos: latLonToVec(d.lat, d.lon, r + 0.035)
   })), [r])
 
+  const seg = mobile ? 48 : 96
+
   return (
     <group>
       {/* Earth */}
       <mesh ref={globeRef}>
-        <sphereGeometry args={[r, 96, 96]} />
+        <sphereGeometry args={[r, seg, seg]} />
         {earthMap ? (
           <meshStandardMaterial map={earthMap} roughness={0.68} metalness={0.06} />
         ) : (
@@ -130,13 +135,13 @@ function Earth({ scrollY = 0, scale = 1.75 }: { scrollY?: number, scale?: number
 
       {/* Clouds */}
       <mesh ref={cloudsRef}>
-        <sphereGeometry args={[r * 1.012, 64, 64]} />
+        <sphereGeometry args={[r * 1.012, mobile ? 32 : 64, mobile ? 32 : 64]} />
         <meshStandardMaterial color="white" transparent opacity={0.065} depthWrite={false} />
       </mesh>
 
       {/* Atmosphere glow */}
       <mesh>
-        <sphereGeometry args={[r * 1.2, 64, 64]} />
+        <sphereGeometry args={[r * 1.2, mobile ? 32 : 64, mobile ? 32 : 64]} />
         <meshBasicMaterial color="#7fdfff" transparent opacity={0.045} side={THREE.BackSide} />
       </mesh>
 
@@ -173,7 +178,7 @@ function Earth({ scrollY = 0, scale = 1.75 }: { scrollY?: number, scale?: number
   )
 }
 
-function FlyingFleet({ globeR = 1.75 }: { globeR?: number }) {
+function FlyingFleet({ globeR = 1.75, mobile = false }: { globeR?: number, mobile?: boolean }) {
   const g1 = useRef<THREE.Group>(null)
   const g2 = useRef<THREE.Group>(null)
   const g3 = useRef<THREE.Group>(null)
@@ -197,10 +202,12 @@ function FlyingFleet({ globeR = 1.75 }: { globeR?: number }) {
       <meshStandardMaterial color="#fff8f0" emissive="#ff8a2a" emissiveIntensity={0.22} />
     </mesh>
   )
+  // On mobile keep just one orbiting plane to reduce draw calls.
+  const fleets = mobile ? [g1] : [g1, g2, g3]
   return <>
-    <group ref={g1}><Plane /></group>
-    <group ref={g2}><Plane /></group>
-    <group ref={g3}><Plane /></group>
+    {fleets.map((ref, idx) => (
+      <group key={idx} ref={ref}><Plane /></group>
+    ))}
   </>
 }
 
@@ -211,21 +218,27 @@ export default function Globe3D({
   scrollProgress?: number,
   fill?: boolean
 }) {
+  const isMobile = useIsMobile()
+  const reduced = prefersReducedMotion()
   // Hero full-bleed mode uses a larger globe and pulled-back camera
   const globeScale = fill ? 2.38 : 1.75
   const cameraZ = fill ? 5.55 : 5.1
   const fov = fill ? 38 : 42
+  // Cap device pixel ratio harder on mobile to cut GPU/load cost.
+  const dpr: [number, number] = isMobile ? [1, 1.3] : [1, 1.8]
+  // Reduced-motion: stop the autorotate/animation by locking progress.
+  const effectiveProgress = reduced ? 0 : scrollProgress
 
   return (
     <div className={fill ? "absolute inset-0 w-full h-full" : "w-full h-[480px] md:h-[600px] lg:h-[660px] relative"}>
-      <Canvas camera={{ position: [0, 0, cameraZ], fov }} dpr={[1, 1.8]} gl={{ alpha: true, antialias: true }}>
+      <Canvas camera={{ position: [0, 0, cameraZ], fov }} dpr={dpr} gl={{ alpha: true, antialias: !isMobile }}>
         <ambientLight intensity={0.92} />
         <directionalLight position={[5, 3, 5]} intensity={1.35} />
         <pointLight position={[-5, -2, -4]} intensity={0.42} color="#ffc27a" />
         {/* Only show starfield in non-fill (boxed) mode – in fill mode the page gradient is the background, keeping the earth perfectly round with no boxy starfield */}
-        {!fill && <Stars radius={90} depth={40} count={3200} factor={2.4} fade speed={0.55} />}
-        <Earth scrollY={scrollProgress} scale={globeScale} />
-        <FlyingFleet globeR={globeScale} />
+        {!fill && !isMobile && <Stars radius={90} depth={40} count={3200} factor={2.4} fade speed={0.55} />}
+        <Earth scrollY={effectiveProgress} scale={globeScale} mobile={isMobile} />
+        <FlyingFleet globeR={globeScale} mobile={isMobile} />
         <OrbitControls enableZoom={false} enablePan={false} autoRotate={false} rotateSpeed={0.4} minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.6} />
       </Canvas>
       {/* soft circular vignette – keeps the globe feeling round, no hard box edges */}

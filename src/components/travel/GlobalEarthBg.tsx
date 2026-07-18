@@ -2,6 +2,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Stars, useTexture } from '@react-three/drei'
 import { useRef } from 'react'
 import * as THREE from 'three'
+import { useIsMobile, prefersReducedMotion } from '../../lib/useIsMobile'
 
 function SlowEarth() {
   const meshRef = useRef<THREE.Mesh>(null)
@@ -38,6 +39,18 @@ function SlowEarth() {
 }
 
 export default function GlobalEarthBg() {
+  const isMobile = useIsMobile()
+  const reduced = prefersReducedMotion()
+  // Disable the heavy WebGL earth on mobile / reduced-motion to protect
+  // mobile load speed and battery; the CSS gradient overlay still renders.
+  if (isMobile || reduced) {
+    return (
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_65%_40%,rgba(250,252,253,0.15)_0%,rgba(246,251,252,0.55)_55%,rgba(243,250,251,0.88)_100%)]" />
+        <div className="absolute inset-0 bg-background/78" />
+      </div>
+    )
+  }
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       {/* faint earth canvas */}

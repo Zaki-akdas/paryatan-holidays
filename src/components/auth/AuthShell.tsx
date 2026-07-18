@@ -14,7 +14,7 @@ export function AuthShell({
   side?: ReactNode
 }) {
   return (
-    <div className="min-h-screen w-full grid lg:grid-cols-2 bg-background overflow-hidden">
+    <div className="min-h-[100dvh] w-full grid lg:grid-cols-2 bg-background overflow-hidden">
       {/* Brand / visual panel */}
       <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-ocean text-white p-12">
         <motion.div
@@ -85,23 +85,27 @@ export function AuthShell({
       </div>
 
       {/* Form panel */}
-      <div className="relative flex items-center justify-center p-6 sm:p-10">
+      <div className="relative flex items-center justify-center px-5 py-10 sm:px-8 sm:py-12 lg:p-10"
+        style={{ paddingTop: 'max(2.5rem, env(safe-area-inset-top))', paddingBottom: 'max(2.5rem, env(safe-area-inset-bottom))', paddingLeft: 'max(1.25rem, env(safe-area-inset-left))', paddingRight: 'max(1.25rem, env(safe-area-inset-right))' }}>
         <motion.div
           initial={{ opacity: 0, y: 24, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ type: "spring", stiffness: 220, damping: 24 }}
           className="w-full max-w-md"
         >
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <img src="/logo.png" alt="Paryatan Holidays" className="w-10 h-10 object-contain" />
-            <span className="font-display font-bold text-lg text-[#13313b]">{company.name}</span>
+          {/* Mobile header */}
+          <div className="lg:hidden flex items-center gap-3 mb-7">
+            <span className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-ocean shadow-sm">
+              <img src="/logo.png" alt="Paryatan Holidays" className="w-7 h-7 object-contain" />
+            </span>
+            <span className="font-display font-bold text-lg text-[#13313b] leading-tight">{company.name}</span>
           </div>
 
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="display text-3xl font-bold text-[#13313b]"
+            className="display text-[26px] sm:text-3xl font-bold text-[#13313b]"
           >
             {title}
           </motion.h1>
@@ -109,7 +113,7 @@ export function AuthShell({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.16 }}
-            className="text-muted-foreground mt-1.5"
+            className="text-muted-foreground mt-1.5 text-[14px] sm:text-[15px]"
           >
             {subtitle}
           </motion.p>

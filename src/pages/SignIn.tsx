@@ -106,7 +106,7 @@ export default function SignIn() {
             </motion.div>
 
             <motion.div variants={fieldItem}>
-              <Button type="submit" variant="sunset" className="w-full" disabled={loading}>
+              <Button type="submit" variant="sunset" size="default" className="w-full" disabled={loading}>
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Sign in <ArrowRight className="w-4 h-4" /></>}
               </Button>
             </motion.div>
@@ -132,7 +132,7 @@ export default function SignIn() {
             placeholder="••••••••"
             error={error || undefined}
           />
-          <Button type="submit" variant="sunset" className="w-full" disabled={adminLoading}>
+          <Button type="submit" variant="sunset" size="default" className="w-full" disabled={adminLoading}>
             {adminLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Access Admin Console <Lock className="w-4 h-4" /></>}
           </Button>
           <button
@@ -162,6 +162,7 @@ export default function SignIn() {
             <Button
               type="button"
               variant="outline"
+              size="default"
               className="w-full"
               onClick={() => {
                 setAdminMode(true)
