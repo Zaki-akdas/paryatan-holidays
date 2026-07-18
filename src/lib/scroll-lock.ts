@@ -45,13 +45,17 @@ export function restoreHomeScroll() {
 
 // Reset the page to the very top. Used when opening an itinerary so the view
 // starts at the top of the content on both desktop and mobile, no matter where
-// the user had scrolled the home page. Clears any saved home scroll, forces
-// manual scroll restoration off (so the browser can't re-apply the previous
-// deep position after this runs), and re-asserts the reset a frame later to
-// beat any late restoration triggered by the router/navigation.
+// the user had scrolled the home page. Forces manual scroll restoration off (so
+// the browser can't re-apply the previous deep position after this runs) and
+// re-asserts the reset a frame later to beat any late restoration triggered by
+// the router/navigation.
+//
+// NOTE: do NOT clear the saved home-scroll here. Packages saves it on click so
+// the home page can restore to the opened card's position when the itinerary is
+// closed. Wiping it would make the page jump to the top instead of back to the
+// card.
 export function scrollToTop() {
   try {
-    sessionStorage.removeItem(HOME_SCROLL_KEY)
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
   } catch {}
   if (lenisInstance) lenisInstance.scrollTo(0, { immediate: true, force: true })
