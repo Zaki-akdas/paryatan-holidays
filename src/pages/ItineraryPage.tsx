@@ -1,8 +1,10 @@
+import { useLayoutEffect } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { X, Utensils, Bus, Camera, CheckCircle2, Star } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { getPackageById, buildItinerary, company, type PackageItem } from '../data/packages'
 import { saveLead } from '../lib/leads'
+import { scrollToTop } from '../lib/scroll-lock'
 import tajImg from '../assets/gallery-taj.jpg'
 import kashmirImg from '../assets/gallery-kashmir.jpg'
 import keralaImg from '../assets/gallery-kerala.jpg'
@@ -26,6 +28,12 @@ export default function ItineraryPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const pkg = getPackageById(id)
+
+  // Always start each itinerary at the top of the content, regardless of the
+  // scroll position the user left the home page at (desktop and mobile).
+  // useLayoutEffect + rAF beat the browser's automatic scroll restoration,
+  // which otherwise re-applies the home page's deep scroll position.
+  useLayoutEffect(() => { scrollToTop() }, [id])
 
   if (!pkg) return <Navigate to="/" replace />
 
